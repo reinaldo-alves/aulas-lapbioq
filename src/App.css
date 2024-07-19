@@ -1,0 +1,536 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Times New Roman', Times, serif;
+}
+
+aside {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 75px;
+    height: 100vh;
+    padding: 12px 13px;
+    border-right: 1px solid rgb(220, 220, 220);
+    transition: 0.5s;
+    position: fixed;
+    z-index: 1;
+    background-color: white;
+}
+
+aside:hover {
+    width: 250px;
+}
+
+.center {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.header_logo {
+    margin: 25px 0;
+    padding: 0 12px 20px 12px;
+    width: 100%;
+}
+
+.header_logo img {
+    height: 24px;
+}
+
+.logo-name {
+    display: none;
+}
+
+aside:hover .header_logo .logo-pict {
+    display: none;
+}
+
+aside:hover .header_logo .logo-name {
+    display: block;
+}
+
+.header_icons {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    width: 100%;
+}
+
+.option-item {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    cursor: pointer;
+    width: 100%;
+    padding: 12px;
+    border-radius: 8px;
+}
+
+.option-item:hover {
+    background-color: #eee;
+}
+
+.option-item:hover img {
+    transform: scale(1.1);
+}
+
+.option-item img {
+    width: 24px;
+    max-width: 24px;
+    min-width: 24px;
+    height: 24px;
+}
+
+.option-item span {
+    display: none;
+}
+
+aside:hover .header_icons .option-item span {
+    display: inline;
+}
+
+.header_icons .option-item:first-child img {
+    border-radius: 50%;
+}
+
+.modalCriarConta, .modalUpload, .modalPost, .modalLikes {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    z-index: 2;
+}
+
+.modalLikes {
+    z-index: 3;
+}
+
+.formCriarConta, .formUpload, .formPost, .formLikes {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    background-color: white;
+    padding: 20px;
+    width: 80%;
+    max-width: 700px;
+    text-align: center;
+    border-radius: 4px;
+}
+
+.formLikes {
+    max-width: 250px;
+}
+
+.formLikes ul {
+    overflow-y: auto;
+    margin-top: 20px
+}
+
+.formLikes ul .commentBox {
+    margin-bottom: 8px;
+}
+
+.formCriarConta h2, .formUpload h2 {
+    margin-bottom: 10px;
+}
+
+.formCriarConta span {
+    text-align: left;
+    display: block;
+    font-size: 14px;
+    padding-bottom: 5px;
+    font-weight: bold;
+}
+
+.formCriarConta input, .formUpload input {
+    width: 100%;
+    height: 30px;
+    margin-bottom: 10px;
+    padding-left: 10px;
+    border: 1px solid #ccc;
+}
+
+.formCriarConta input[type=submit], .formUpload input[type=submit] {
+    background-color: #0095f6;
+    cursor: pointer;
+    color: white;
+}
+
+.close-modal {
+    position: absolute;
+    right: 10px;
+    top: 10px;
+    cursor: pointer;
+    width: 30px;
+    height: 30px;
+    text-align: center;
+    color: white;
+    line-height: 30px;
+    border-radius: 15px;
+    background-color: #0095f6;
+}
+
+.mainContainer {
+    background-color: white;
+    max-width: 470px;
+    margin: 10px auto;
+}
+
+.headerDay {
+    font-size: 10;
+    font-weight: bold;
+    background-color: #ccc;
+    border: 1px solid #000;
+    padding: 0 5px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.bodyDay {
+    min-height: 100px;
+    font-size: 10;
+    border: 1px solid #000;
+    border-top: none;
+    margin-bottom: 1px;
+    padding: 0 5px;
+}
+
+.postsContainer {
+    position: absolute;
+    right: 0;
+    width: calc(100vw - 90px);
+}
+
+.post-btn {
+    display: flex;
+    gap: 15px;
+    padding-top: 10px;
+}
+
+.post-btn img  {
+    width: 30px;
+    max-width: 30px;
+    min-width: 30px;
+    height: 30px;
+    cursor: pointer;
+}
+
+.likedby {
+    font-size: 14px;
+    cursor: pointer;
+}
+
+.postHeader, .postHeaderModal {
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    padding: 10px 0;
+    align-items: center;
+    gap: 10px;
+    font-size: 14px;
+}
+
+.postHeader img, .postHeaderModal img, .commentBox img {
+    width: 32px;
+    max-width: 32px;
+    min-width: 32px;
+    height: 32px;
+    border-radius: 50%;
+}
+
+.postSingle img {
+    width: 100%;
+}
+
+.postSingle > p {
+    font-size: 14px;
+    padding: 10px 0;
+}
+
+.postSingle > p b, .titleContainer > p b, .comment-single > p b {
+    padding-right: 8px;
+    cursor: pointer;
+}
+
+.postSingle form {
+    padding: 10px 0;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+textarea {
+    width: 100%;
+    height: 17px;
+    border: none;
+    resize: none;
+    font-family: inherit;
+    outline: none;
+    overflow: hidden;
+}
+
+.postSingle input[type=submit] {
+    display: none;
+    background-color: white;
+    cursor: pointer;
+    color: #0095f6;
+    border: 0;
+    font-weight: bold;
+}
+
+.commentsNumber {
+    color: #4b4b4b;
+    cursor: pointer;
+    font-size: 14px;
+}
+
+.comments {
+    padding: 15px 0;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    width: 100%;
+    font-size: 14px;
+    gap: 10px;
+    height: 100%;
+    overflow-y: auto;
+}
+
+.comment-single {
+    text-align: left;
+}
+
+.formPost {
+    padding: 0;
+    background-color: black;
+    min-height: 450px;
+    max-height: 90%;
+    max-width: 1200px;
+    width: calc(100% - 130px);
+    height: calc(100% - 80px);
+    display: flex;
+    align-items: center;
+    text-align: left;
+    aspect-ratio: 1 / 1;
+}
+
+.formPost > img {
+    max-width: calc(100% - 400px);
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.modalPostInfo {
+    min-width: 400px;
+    width: 100%;
+    max-width: 100%;
+    display: grid;
+    grid-template-rows: auto auto 1fr auto auto;
+    flex-direction: column;
+    align-items: flex-start;
+    background-color: white;
+    padding: 14px;
+    height: 100%;
+}
+
+.modalPostInfo form {
+    padding-top: 14px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-top: 1px solid #ccc;
+}
+
+.postHeaderModal {
+    justify-items: flex-start;
+    padding: 4px 0 14px 0;
+    border-bottom: 1px solid #ccc;
+    width: 100%;
+}
+
+.commentBox {
+    display: flex;
+    gap: 10px;
+    justify-content: flex-start;
+    align-items: flex-start;
+}
+
+.titleContainer {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.titleContainer > p:last-child, .comment-single > p:last-child {
+    color: #4b4b4b;
+    font-size: 12px;
+}
+
+.loginContent {
+    height: calc(100vh - 46px);
+    min-height: 500px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 32px;
+}
+
+.dataLogin {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 350px;
+    gap: 10px;
+}
+
+.formLogin {
+    border: 1px solid #ccc;
+    padding: 10px 40px;
+    width: 350px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.formLogin h2 {
+    text-align: center;
+}
+
+.formLogin img {
+    width: 175px;
+    margin: 30px 0;
+}
+
+.formLogin form input {
+    width: 100%;
+    height: 40px;
+    margin-bottom: 5px;
+    font-size: 14px;
+    padding: 8px;
+    outline: none;
+    border: 1px solid #ccc;
+}
+
+.formLogin form input[type=submit] {
+    height: 32px;
+    background-color: #0095f6;
+    color: white;
+    border-radius: 7px;
+    border: none;
+    font-weight: bold;
+    margin-bottom: 40px;
+    margin-top: 15px;
+    cursor: pointer;
+}
+
+.formSignup {
+    border: 1px solid #ccc;
+    padding: 25px 10px;
+    width: 350px;
+    text-align: center;
+    font-size: 14px;
+}
+
+.formSignup a {
+    background-color: white;
+    cursor: pointer;
+    color: #0095f6;
+    border: 0;
+    font-weight: 600;
+    text-decoration: none;
+}
+
+.curtidaContainer {
+    padding-bottom: 14px;
+    border-top: 1px solid #ccc;
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+footer {
+    margin-bottom: 20px;
+    margin-top: 10px;
+    width: 100%;
+    text-align: center;
+    font-size: 12px;
+    color: #737373;
+}
+
+@media (max-width: 768px) {
+    aside {
+        bottom: 0;
+        left: 0;
+        top: auto;
+        width: 100%;
+        height: 60px;
+        padding: auto 12px;
+        border-right: none;
+        border-top: 1px solid rgb(220, 220, 220);
+        transition: 0;
+    }
+
+    aside:hover {
+        width: 100%;
+    }
+
+    .header_logo {
+        display: none;
+    }
+
+    .header_icons {
+        flex-direction: row-reverse;
+        justify-content: space-around;
+    }
+
+    .option-item {
+        justify-content: center;
+        width: auto;
+        padding: 5px;
+    }
+
+    .option-item:hover {
+        background-color: white;
+    }
+    
+    aside:hover .header_icons .option-item span {
+        display: none;
+    }
+
+    .postsContainer {
+        width: 100%;
+        padding-bottom: 60px;
+    }
+
+    .formPost {
+        flex-direction: column;
+    }
+
+    .formPost > img {
+        max-width: 100%;
+        max-height: 50%;
+    }
+
+    .modalPostInfo {
+        min-width: 0;
+        overflow-y: auto;
+    }
+}
+
+@media (max-width: 567px) {
+    .postHeader, .postSingle > p, .postSingle form, .commentsNumber, .likedby, .post-btn {
+        padding-left: 10px;
+        padding-right: 10px;
+    }
+}
