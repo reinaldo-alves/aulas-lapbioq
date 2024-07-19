@@ -9,9 +9,9 @@ aside {
     position: absolute;
     top: 0;
     left: 0;
-    width: 75px;
+    width: 80px;
     height: 100vh;
-    padding: 12px 13px;
+    padding: 12px 15px;
     border-right: 1px solid rgb(220, 220, 220);
     transition: 0.5s;
     position: fixed;
@@ -20,7 +20,7 @@ aside {
 }
 
 aside:hover {
-    width: 250px;
+    width: 200px;
 }
 
 .center {
@@ -32,24 +32,13 @@ aside:hover {
 
 .header_logo {
     margin: 25px 0;
-    padding: 0 12px 20px 12px;
+    display: flex;
+    justify-content: flex-start;
     width: 100%;
 }
 
 .header_logo img {
-    height: 24px;
-}
-
-.logo-name {
-    display: none;
-}
-
-aside:hover .header_logo .logo-pict {
-    display: none;
-}
-
-aside:hover .header_logo .logo-name {
-    display: block;
+    height: 30px;
 }
 
 .header_icons {
@@ -91,10 +80,6 @@ aside:hover .header_logo .logo-name {
 
 aside:hover .header_icons .option-item span {
     display: inline;
-}
-
-.header_icons .option-item:first-child img {
-    border-radius: 50%;
 }
 
 .modalCriarConta, .modalUpload, .modalPost, .modalLikes {
@@ -180,8 +165,9 @@ aside:hover .header_icons .option-item span {
 
 .mainContainer {
     background-color: white;
-    max-width: 470px;
+    max-width: 490px;
     margin: 10px auto;
+    padding: 0 10px;
 }
 
 .headerDay {
@@ -202,6 +188,10 @@ aside:hover .header_icons .option-item span {
     border-top: none;
     margin-bottom: 1px;
     padding: 0 5px;
+}
+
+.bdFriday {
+    margin-bottom: 50px;
 }
 
 .postsContainer {
@@ -422,7 +412,7 @@ textarea {
     border: 1px solid #ccc;
 }
 
-.formLogin form input[type=submit] {
+.formLogin form input[type=submit], .btn-login {
     height: 32px;
     background-color: #0095f6;
     color: white;
@@ -432,6 +422,11 @@ textarea {
     margin-bottom: 40px;
     margin-top: 15px;
     cursor: pointer;
+}
+
+.btn-login {
+    width: 50px;
+    margin: 0;
 }
 
 .formSignup {
@@ -490,7 +485,7 @@ footer {
     }
 
     .header_icons {
-        flex-direction: row-reverse;
+        flex-direction: row;
         justify-content: space-around;
     }
 

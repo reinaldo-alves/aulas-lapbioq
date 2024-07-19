@@ -3,6 +3,11 @@ import { storageRef, storagePut, getURL, dbCollection, dbAdd, serverTimestamp, a
 import { v4 as uuidv4 } from 'uuid';
 import { abrirModal, fecharModal } from './functions';
 import { User } from 'firebase/auth';
+import Logo from './images/logo-bioquimica.jpg';
+import AulaImg from './images/class.png';
+import TecImg from './images/tecnician.png';
+import HistImg from './images/history.png';
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
     user: User
@@ -13,6 +18,8 @@ function Header(props: IProps) {
     
     const [progress, setProgress] = useState(0);
     const [file, setFile] = useState<File | null>(null);
+
+    const navigate = useNavigate();
 
     function handleLogout(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         e.preventDefault();
@@ -75,22 +82,31 @@ function Header(props: IProps) {
             
             <div className="center">
                 <div className="header_logo">
-                    <a className='logo-name' href='/'><img src='https://www.instagram.com/static/images/web/mobile_nav_type_logo.png/735145cfe0a4.png' /></a>
-                    <a className='logo-pict' href='/'><img src='https://seeklogo.com/images/I/instagram-logo-A807AD378B-seeklogo.com.png' /></a>
+                    <a className='logo-pict' href='/'><img src={Logo} alt='DBIOq'/></a>
                 </div>
                 <div className='header_icons'>
-                    <div className="option-item">
-                        <img src={props.user.photoURL || ''} alt={props.user.displayName || ''} />
-                        <span><b>{props.user.displayName}</b></span>
-                    </div>
-                    <div className="option-item" onClick={(e) => abrirModal(e, '.modalUpload')} >
-                        <img src='https://static-00.iconduck.com/assets.00/plus-square-icon-2048x2048-h144q2yx.png' alt='Postar!' />
-                        <span>Postar</span>
-                    </div>
-                    <div className="option-item" onClick={(e) => handleLogout(e)} >
-                        <img src='https://cdn-icons-png.flaticon.com/512/126/126467.png' alt='Sair' />
-                        <span>Sair</span>
-                    </div>
+                    {props.user?.displayName ?
+                        <>        
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalUpload')} >
+                                <img src={TecImg} alt='Técnico' />
+                                <span>Técnicos</span>
+                            </div>
+                            <div className="option-item">
+                                <img src={AulaImg} alt='Aulas' />
+                                <span>Aulas</span>
+                            </div>
+                            <div className="option-item" onClick={(e) => handleLogout(e)} >
+                                <img src={HistImg} alt='Histórico' />
+                                <span>Histórico</span>
+                            </div>
+                            <div className="option-item" onClick={(e) => handleLogout(e)} >
+                                <img src='https://cdn-icons-png.flaticon.com/512/126/126467.png' alt='Sair' />
+                                <span>Sair</span>
+                            </div>
+                        </>
+                    :
+                        <button className='btn-login' onClick={() => navigate('/login')}>Login</button>
+                    }                   
                 </div>
             </div>
         </aside> 

@@ -1,11 +1,11 @@
 import './App.css';
 import { useEffect, useState } from 'react';
-import Header from './Header';
 import { authOnStateChanged, dbCollection, dbOnSnapshot, dbOrderBy } from './firebase';
 import { IPost } from './types';
 import Login from './Login';
 import { User } from 'firebase/auth';
 import Home from './Home';
+import { BrowserRouter, Route, Routes } from 'react-router-dom';
 
 function App() {
 
@@ -31,16 +31,12 @@ function App() {
 
   return (
     <div className="App">
-      {user?.displayName ?
-        <>        
-          <Header user={user} setUser={setUser}/>
-          <div className="postsContainer">
-            <Home />
-          </div>
-        </>
-      :
-        <Login user={user} setUser={setUser}/>
-      }
+      <BrowserRouter>
+        <Routes>
+          <Route path='/' element={<Home user={user} setUser={setUser}/>} />
+          <Route path='/login' element={<Login user={user} setUser={setUser}/>} />
+        </Routes>
+      </BrowserRouter> 
     </div>
   );
 }

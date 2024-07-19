@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { authCreate, authSignIn, authUpdate, getURL, storagePut, storageRef } from './firebase'
+import { authCreate, authSignIn, authUpdate } from './firebase'
 import { abrirModal, fecharModal } from './functions';
 import Logo from './images/logo-bioquimica.jpg'
+import { useNavigate } from 'react-router-dom';
 
 interface IProps {
     user: any
@@ -9,6 +9,8 @@ interface IProps {
 }
 
 function Login(props: IProps) {
+    
+    const navigate = useNavigate();
     
     function criarConta(e: React.FormEvent<HTMLFormElement>) {
         e.preventDefault();
@@ -50,7 +52,8 @@ function Login(props: IProps) {
             .then((auth) => {
                 props.setUser(auth.user.displayName);
                 alert(`Usuário ${auth.user.displayName} logado com sucesso!`);
-                window.location.href = '/';          
+                window.location.href = '/';
+                navigate('/');          
             })
             .catch((error) => {
                 alert(error.message)
@@ -75,7 +78,7 @@ function Login(props: IProps) {
                 <div className="dataLogin">
                     <div className="formLogin">
                         <h2>Horário de Aulas Prátias - LAPBIOQ</h2>
-                        <img src={Logo} />
+                        <img src={Logo} alt='DBIOq'/>
                         <form onSubmit={(e) => handleLogin(e)}>
                             <input id='email-login' type="text" placeholder='E-mail' />
                             <input id='senha-login' type="password" placeholder='Senha' />
