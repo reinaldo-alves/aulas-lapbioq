@@ -23,6 +23,16 @@ aside:hover {
     width: 200px;
 }
 
+button, input[type=submit] {
+    background-color: #0095f6;
+    color: white;
+    height: 32px;
+    border: none;
+    font-weight: bold;
+    border-radius: 7px;
+    cursor: pointer;
+}
+
 .center {
     width: 100%;
     display: flex;
@@ -82,7 +92,7 @@ aside:hover .header_icons .option-item span {
     display: inline;
 }
 
-.modalCriarConta, .modalUpload, .modalPost, .modalLikes {
+.modalTecnico, .modalAula, .modalHistorico, .modalPost, .modalLikes {
     display: none;
     position: fixed;
     top: 0;
@@ -97,7 +107,7 @@ aside:hover .header_icons .option-item span {
     z-index: 3;
 }
 
-.formCriarConta, .formUpload, .formPost, .formLikes {
+.formCriarConta, .modalContainer, .formPost, .formLikes {
     position: absolute;
     left: 50%;
     top: 50%;
@@ -105,7 +115,7 @@ aside:hover .header_icons .option-item span {
     background-color: white;
     padding: 20px;
     width: 80%;
-    max-width: 700px;
+    max-width: 500px;
     text-align: center;
     border-radius: 4px;
 }
@@ -123,8 +133,8 @@ aside:hover .header_icons .option-item span {
     margin-bottom: 8px;
 }
 
-.formCriarConta h2, .formUpload h2 {
-    margin-bottom: 10px;
+.formCriarConta h2, .modalContainer h2 {
+    margin-bottom: 20px;
 }
 
 .formCriarConta span {
@@ -135,7 +145,7 @@ aside:hover .header_icons .option-item span {
     font-weight: bold;
 }
 
-.formCriarConta input, .formUpload input {
+.formCriarConta input, .modalContainer input, .modalContainer select {
     width: 100%;
     height: 30px;
     margin-bottom: 10px;
@@ -143,10 +153,10 @@ aside:hover .header_icons .option-item span {
     border: 1px solid #ccc;
 }
 
-.formCriarConta input[type=submit], .formUpload input[type=submit] {
-    background-color: #0095f6;
-    cursor: pointer;
-    color: white;
+.formCriarConta input[type=submit], .modalContainer button {
+    width: 100%;
+    max-width: 200px;
+    font-size: 16px;
 }
 
 .close-modal {
@@ -161,6 +171,7 @@ aside:hover .header_icons .option-item span {
     line-height: 30px;
     border-radius: 15px;
     background-color: #0095f6;
+    font-family: Arial, Helvetica, sans-serif;
 }
 
 .mainContainer {
@@ -270,10 +281,7 @@ textarea {
 .postSingle input[type=submit] {
     display: none;
     background-color: white;
-    cursor: pointer;
     color: #0095f6;
-    border: 0;
-    font-weight: bold;
 }
 
 .commentsNumber {
@@ -413,15 +421,8 @@ textarea {
 }
 
 .formLogin form input[type=submit], .btn-login {
-    height: 32px;
-    background-color: #0095f6;
-    color: white;
-    border-radius: 7px;
-    border: none;
-    font-weight: bold;
     margin-bottom: 40px;
     margin-top: 15px;
-    cursor: pointer;
 }
 
 .btn-login {

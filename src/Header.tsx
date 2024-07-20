@@ -8,10 +8,12 @@ import AulaImg from './images/class.png';
 import TecImg from './images/tecnician.png';
 import HistImg from './images/history.png';
 import { useNavigate } from 'react-router-dom';
+import { ITecnico } from './types';
 
 interface IProps {
-    user: User
-    setUser: React.Dispatch<React.SetStateAction<any>>
+    user: User,
+    setUser: React.Dispatch<React.SetStateAction<any>>,
+    tecnicos: Array<ITecnico>
 }
 
 function Header(props: IProps) {
@@ -25,7 +27,6 @@ function Header(props: IProps) {
         e.preventDefault();
         authSignOut((val) => {
             props.setUser(null);
-            alert('Você escolheu sair!');
             window.location.href = '/';
         })
     }
@@ -67,10 +68,37 @@ function Header(props: IProps) {
     
     return (
         <aside>
-            <div className="modalUpload">
-                <div onClick={() => fecharModal('.modalUpload')} className="close-modal">X</div>
-                <div className="formUpload">
-                    <h2>Postar Foto</h2>
+            <div className="modalTecnico">
+                <div onClick={() => fecharModal('.modalTecnico')} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2>Selecione o Técnico</h2>
+                    <select>
+                        <option value=''></option>
+                        {props.tecnicos.map((item => (
+                            <option key={item.id} value={item.info.nome}>{item.info.nome}</option>
+                        )))}
+                    </select>
+                    <button>Confirmar</button>
+                </div>
+            </div>
+
+            <div className="modalAula">
+                <div onClick={() => fecharModal('.modalAula')} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2>Gerenciar Aulas</h2>
+                    <form id='form-upload' onSubmit={(e) => uploadPost(e)}>
+                        <progress id='progress-upload' value={progress}></progress>
+                        <input id='titulo-upload' type="text" placeholder='Nome da sua foto...' />
+                        <input onChange={(e) => setFile(e.target.files? e.target.files[0] : null)} type="file" name='file' />
+                        <input type="submit" value='Postar no Instagram!' />
+                    </form>
+                </div>
+            </div>
+
+            <div className="modalHistorico">
+                <div onClick={() => fecharModal('.modalHistorico')} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2>Aulas Anteriores</h2>
                     <form id='form-upload' onSubmit={(e) => uploadPost(e)}>
                         <progress id='progress-upload' value={progress}></progress>
                         <input id='titulo-upload' type="text" placeholder='Nome da sua foto...' />
@@ -85,17 +113,17 @@ function Header(props: IProps) {
                     <a className='logo-pict' href='/'><img src={Logo} alt='DBIOq'/></a>
                 </div>
                 <div className='header_icons'>
-                    {props.user?.displayName ?
+                    {props.user?.email ?
                         <>        
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalUpload')} >
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalTecnico')} >
                                 <img src={TecImg} alt='Técnico' />
                                 <span>Técnicos</span>
                             </div>
-                            <div className="option-item">
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAula')} >
                                 <img src={AulaImg} alt='Aulas' />
                                 <span>Aulas</span>
                             </div>
-                            <div className="option-item" onClick={(e) => handleLogout(e)} >
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalHistorico')} >
                                 <img src={HistImg} alt='Histórico' />
                                 <span>Histórico</span>
                             </div>

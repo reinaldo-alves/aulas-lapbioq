@@ -2,18 +2,29 @@ import { User } from 'firebase/auth';
 
 export interface IAula {
   id: string,
-  nome: string,
-  curso: string,
-  data: string,
-  inicio: string,
-  termino: string,
-  tecnico: string | null
+  info: {
+    nome: string,
+    curso: string,
+    data: string,
+    inicio: string,
+    termino: string,
+    tecnico: string | null
+  }
 }
 
 export interface ICurso {
   id: string,
-  nome: string,
-  aulas: Array<string>
+  info: {
+    nome: string,
+    aulas: Array<string>
+  }
+}
+
+export interface ITecnico {
+  id: string,
+  info: {
+    nome: string
+  }
 }
 
 export interface IPost {
