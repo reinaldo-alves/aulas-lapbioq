@@ -1,6 +1,6 @@
 import { dbOnSnapshot, dbOrderBy, dbCollection } from "./firebase";
 import Header from "./Header";
-import { ITecnico } from "./types"
+import { IAula } from "./types"
 import { useEffect, useState } from "react";
 
 interface IProps {
@@ -10,7 +10,7 @@ interface IProps {
 
 function Home(props: IProps) {
     
-    const [tecnicos, setTecnicos] = useState([] as Array<ITecnico>)
+    const [aulas, setAulas] = useState([] as Array<IAula>)
     
     const now = new Date();
     const nowTS = now.getTime();
@@ -23,21 +23,23 @@ function Home(props: IProps) {
     const formatLongDate = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long'});
     const formatWeekday = new Intl.DateTimeFormat('pt-BR', { weekday: 'long'});
 
+    
+
     useEffect(() => {
-        const dbQuery = dbOrderBy(dbCollection("tecnicos"), 'nome', 'asc');
+        const dbQuery = dbOrderBy(dbCollection("aulas"), 'data', 'asc');
         const unsubscribe = dbOnSnapshot(dbQuery, (querySnapshot) => {
-          const tecnicos: ITecnico[] = [];
+          const aulas: IAula[] = [];
           querySnapshot.forEach((doc) => {
-            const data = doc.data() as ITecnico["info"]
-            tecnicos.push({ id: doc.id, info: data });
+            const data = doc.data() as IAula["info"]
+            aulas.push({ id: doc.id, info: data });
           });
-          setTecnicos(tecnicos);
+          setAulas(aulas);
         });
     }, [])
    
     return (
         <>
-            <Header user={props.user} setUser={props.setUser} tecnicos={tecnicos} />
+            <Header user={props.user} setUser={props.setUser} />
             <div className="mainContainer">
                 {arrayDatas.filter(item => item.getDay() > 0 && item.getDay() < 6).map((item, index) => {
                     return (
@@ -47,8 +49,7 @@ function Home(props: IProps) {
                                 <span>{formatWeekday.format(item)}</span>
                             </div>
                             <div className={item.getDay() === 5 ? "bodyDay bdFriday" : "bodyDay"}></div>
-                        </div>
-                        
+                        </div>    
                     )
                 })}
             </div>
