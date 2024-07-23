@@ -28,3 +28,10 @@ export interface ITecnico {
     nome: string
   }
 }
+
+export interface IFeriado {
+  id: string,
+  info: {
+    data: string
+  }
+}

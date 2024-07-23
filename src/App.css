@@ -34,6 +34,11 @@ button, input[type=submit] {
     font-size: 16px;
 }
 
+button:disabled, input[type=submit]:disabled {
+    background-color: gray;
+    cursor: not-allowed;
+}
+
 .center {
     width: 100%;
     display: flex;
@@ -115,6 +120,8 @@ aside:hover .header_icons .option-item span {
     max-width: 500px;
     text-align: center;
     border-radius: 4px;
+    max-height: 90%;
+    overflow-y: auto;
 }
 
 .modalContainer h2 {
@@ -173,16 +180,38 @@ aside:hover .header_icons .option-item span {
 }
 
 .bodyDay {
-    min-height: 100px;
+    min-height: 90px;
     font-size: 10;
     border: 1px solid #000;
     border-top: none;
     margin-bottom: 1px;
-    padding: 0 5px;
+    padding: 2px 5px;
+}
+
+.bodyDay p {
+    margin-bottom: 2px;
 }
 
 .bdFriday {
     margin-bottom: 50px;
+}
+
+.bdHoliday {
+    background-color: #ccc;
+    font-weight: bold;
+    font-size: 30px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.class-single {
+    display: inline-block;
+    cursor: pointer;
+}
+
+.class-single:hover {
+    text-decoration: underline;
 }
 
 .loginContent {
@@ -264,6 +293,10 @@ footer {
 
     aside:hover {
         width: 100%;
+    }
+
+    .mainContainer {
+        margin-bottom: 70px;
     }
 
     .header_logo {

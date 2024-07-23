@@ -4,6 +4,17 @@ export function convertStringToHour(now: Date, time: string) {
     return now;
 }
 
+export function convertDateToString(date: Date) {
+    const string = `${date.getFullYear()}-${String(date.getMonth() + 1).padStart(2,'0')}-${String(date.getDate()).padStart(2,'0')}`;
+    return string;
+}
+
+export function displayedHour(time: string) {
+    const [hours, minutes] = time.split(':');
+    const result = minutes === "00" ? hours : `${hours}:${minutes}`
+    return result;
+}
+
 export function fecharModal(selector: string) {
     const modal = document.querySelector(selector) as HTMLElement;
     if(modal){

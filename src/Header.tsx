@@ -20,8 +20,19 @@ const defaultAula = {
     curso: '',
     data: '',
     inicio: '',
-    termino: '',
-    tecnico: ''
+    termino: ''
+}
+
+const defaultCurso = {
+    id: '',
+    info: {
+      nome: '',
+      aulas: [{
+        nome: '',
+        inicio: '',
+        termino: ''
+      }]
+    }
 }
 
 function Header(props: IProps) {
@@ -29,7 +40,10 @@ function Header(props: IProps) {
     const [cursos, setCursos] = useState([] as Array<ICurso>);
     const [tecnicos, setTecnicos] = useState([] as Array<ITecnico>);
     const [newAula, setNewAula] = useState(defaultAula);
+    const [curso, setCurso] = useState(defaultCurso);
     const [outro, setOutro] = useState(false);
+    const [arrayDatas, setArrayDatas] = useState(Array(30).fill(''));
+    const [feriado, setFeriado] = useState('');
 
     const navigate = useNavigate();
 
@@ -48,6 +62,12 @@ function Header(props: IProps) {
         } else {
             setOutro(false);
         }
+    };
+
+    const handleDateChange = (index: number, value: string) => {
+        const newArrayDatas = [...arrayDatas];
+        newArrayDatas[index] = value;
+        setArrayDatas(newArrayDatas);
     };
 
     function handleLogout(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
@@ -70,12 +90,41 @@ function Header(props: IProps) {
                 tecnico: ''
             })
             alert('Aula adicionada com sucesso!');
-            fecharModal('.modalAddAula')
+            fecharModal('.modalAddAula');
+            setNewAula(defaultAula);
         } else {
             alert('Preencha todas as informações e tente novamente');
         }
-        
-        
+    }
+
+    function addCronograma() {
+        curso.info.aulas.forEach((item, index) => {
+            if (arrayDatas[index]) {
+                const aulasRef = dbCollection('aulas');
+                dbAdd(aulasRef, uuidv4(), {
+                    nome: item.nome,
+                    curso: curso.info.nome,
+                    data: arrayDatas[index],
+                    inicio: item.inicio,
+                    termino: item.termino,
+                    tecnico: ''
+                })
+            }
+        })
+        alert('Cronograma adicionado com sucesso!');
+        fecharModal('.modalAddCronograma');
+        setCurso(defaultCurso);
+        setArrayDatas(Array(30).fill(''));
+    }
+
+    function addFeriado() {
+        const feriadosRef = dbCollection('feriados');
+        dbAdd(feriadosRef, uuidv4(), {
+            data: feriado,
+        })
+        alert('Feriado adicionado com sucesso!');
+        fecharModal('.modalAddFeriado');
+        setFeriado('');
     }
 
     useEffect(() => {
@@ -123,22 +172,24 @@ function Header(props: IProps) {
                         fecharModal('.modalAula');
                         abrirModal(e, '.modalAddAula')
                     }}>Adicionar Aula</button>
-                    <form id='form-upload' onSubmit={(e) => {}}>
-                        <input id='titulo-upload' type="text" placeholder='Nome da sua foto...' />
-                        <input onChange={(e) => {}} type="file" name='file' />
-                        <select>
-                            <option value=''>Selecione um curso...</option>
-                            {cursos.map((item => (
-                                <option key={item.id} value={item.info.nome}>{item.info.nome}</option>
-                            )))}
-                        </select>
-                        <input type="submit" value='Postar no Instagram!' />
-                    </form>
+                    <br/>
+                    <button onClick={(e) => {
+                        fecharModal('.modalAula');
+                        abrirModal(e, '.modalAddCronograma')
+                    }}>Adicionar Cronograma</button>
+                    <br/>
+                    <button onClick={(e) => {
+                        fecharModal('.modalAula');
+                        abrirModal(e, '.modalAddFeriado')
+                    }}>Adicionar Feriados</button>
                 </div>
             </div>
 
             <div className="modal modalAddAula">
-                <div onClick={() => fecharModal('.modalAddAula')} className="close-modal">X</div>
+                <div onClick={() => {
+                    fecharModal('.modalAddAula');
+                    setNewAula(defaultAula);
+                }} className="close-modal">X</div>
                 <div className="modalContainer">
                     <h2 onClick={() => console.log(newAula)}>Adicionar Aula</h2>
                     <form>
@@ -163,6 +214,48 @@ function Header(props: IProps) {
                         <input type="time" value={newAula.termino} onChange={(e) => updateProps('termino', e.target.value)} />
                     </form>
                     <button onClick={() => addAula()}>Adicionar</button>
+                </div>
+            </div>
+
+            <div className="modal modalAddCronograma">
+                <div onClick={() => {
+                    fecharModal('.modalAddCronograma');
+                    setCurso(defaultCurso);
+                    setArrayDatas(Array(30).fill(''));
+                }} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2 onClick={() => console.log(newAula)}>Adicionar Cronograma</h2>
+                    <form>
+                        <label>Selecione o curso</label>
+                        <select value={curso.id} onChange={(e) => setCurso(cursos.find(item => item.id === e.target.value) || defaultCurso)}>
+                            <option value=''></option>
+                            {cursos.map((item => (
+                                <option key={item.id} value={item.id}>{item.info.nome}</option>
+                            )))}
+                        </select>
+                        {curso.id && curso.info.aulas.map((item, index) => (
+                            <div key={index}>
+                                <p><b>{item.nome}</b> - Horário: {item.inicio} às {item.termino}</p>
+                                <input type='date' value={arrayDatas[index]} onChange={(e) => handleDateChange(index, e.target.value)}/>
+                            </div>
+                        ))}
+                    </form>
+                    <button onClick={() => addCronograma()} disabled={!curso.id}>Salvar</button>
+                </div>
+            </div>
+
+            <div className="modal modalAddFeriado">
+                <div onClick={() => {
+                    fecharModal('.modalAddFeriado');
+                    setFeriado('');
+                }} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2>Adicionar Feriado</h2>
+                    <form>
+                        <label>Selecione uma data</label>
+                        <input type='date' value={feriado} onChange={(e) => setFeriado(e.target.value)}/>
+                    </form>
+                    <button onClick={() => addFeriado()} disabled={!feriado}>Adicionar</button>
                 </div>
             </div>
 
