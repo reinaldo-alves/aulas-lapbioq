@@ -8,11 +8,12 @@ import AulaImg from './images/class.png';
 import TecImg from './images/tecnician.png';
 import HistImg from './images/history.png';
 import { useNavigate } from 'react-router-dom';
-import { ICurso, ITecnico } from './types';
+import { ICurso } from './types';
 
 interface IProps {
     user: User,
     setUser: React.Dispatch<React.SetStateAction<any>>,
+    cursos: Array<ICurso>
 }
 
 const defaultAula = {
@@ -37,8 +38,6 @@ const defaultCurso = {
 
 function Header(props: IProps) {
     
-    const [cursos, setCursos] = useState([] as Array<ICurso>);
-    const [tecnicos, setTecnicos] = useState([] as Array<ITecnico>);
     const [newAula, setNewAula] = useState(defaultAula);
     const [curso, setCurso] = useState(defaultCurso);
     const [outro, setOutro] = useState(false);
@@ -126,44 +125,10 @@ function Header(props: IProps) {
         fecharModal('.modalAddFeriado');
         setFeriado('');
     }
-
-    useEffect(() => {
-        const dbQueryTec = dbOrderBy(dbCollection("tecnicos"), 'nome', 'asc');
-        const unsubscribeTec = dbOnSnapshot(dbQueryTec, (querySnapshot) => {
-          const tecnicos: ITecnico[] = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data() as ITecnico["info"]
-            tecnicos.push({ id: doc.id, info: data });
-          });
-          setTecnicos(tecnicos);
-        });
-        const dbQueryCur = dbOrderBy(dbCollection("cursos"), 'nome', 'asc');
-        const unsubscribeCur = dbOnSnapshot(dbQueryCur, (querySnapshot) => {
-          const cursos: ICurso[] = [];
-          querySnapshot.forEach((doc) => {
-            const data = doc.data() as ICurso["info"]
-            cursos.push({ id: doc.id, info: data });
-          });
-          setCursos(cursos);
-        });
-    }, [])
     
     return (
         <aside>
-            <div className="modal modalTecnico">
-                <div onClick={() => fecharModal('.modalTecnico')} className="close-modal">X</div>
-                <div className="modalContainer">
-                    <h2>Selecione o Técnico</h2>
-                    <select>
-                        <option value=''></option>
-                        {tecnicos.map((item => (
-                            <option key={item.id} value={item.info.nome}>{item.info.nome}</option>
-                        )))}
-                    </select>
-                    <button onClick={() => {}}>Confirmar</button>
-                </div>
-            </div>
-
+        
             <div className="modal modalAula">
                 <div onClick={() => fecharModal('.modalAula')} className="close-modal">X</div>
                 <div className="modalContainer">
@@ -198,7 +163,7 @@ function Header(props: IProps) {
                         <label>Curso</label>
                         <select value={newAula.curso} onChange={handleSelectChange}>
                             <option value=''></option>
-                            {cursos.map((item => (
+                            {props.cursos.map((item => (
                                 <option key={item.id} value={item.info.nome}>{item.info.nome}</option>
                             )))}
                             <option value='outro'>Outro</option>
@@ -227,9 +192,9 @@ function Header(props: IProps) {
                     <h2 onClick={() => console.log(newAula)}>Adicionar Cronograma</h2>
                     <form>
                         <label>Selecione o curso</label>
-                        <select value={curso.id} onChange={(e) => setCurso(cursos.find(item => item.id === e.target.value) || defaultCurso)}>
+                        <select value={curso.id} onChange={(e) => setCurso(props.cursos.find(item => item.id === e.target.value) || defaultCurso)}>
                             <option value=''></option>
-                            {cursos.map((item => (
+                            {props.cursos.map((item => (
                                 <option key={item.id} value={item.id}>{item.info.nome}</option>
                             )))}
                         </select>
@@ -278,10 +243,6 @@ function Header(props: IProps) {
                 <div className='header_icons'>
                     {props.user?.email ?
                         <>        
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalTecnico')} >
-                                <img src={TecImg} alt='Técnico' />
-                                <span>Técnicos</span>
-                            </div>
                             <div className="option-item" onClick={(e) => abrirModal(e, '.modalAula')} >
                                 <img src={AulaImg} alt='Aulas' />
                                 <span>Aulas</span>

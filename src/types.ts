@@ -6,7 +6,7 @@ export interface IAula {
     data: string,
     inicio: string,
     termino: string,
-    tecnico: string | null
+    tecnico: string
   }
 }
 
@@ -25,7 +25,8 @@ export interface ICurso {
 export interface ITecnico {
   id: string,
   info: {
-    nome: string
+    nome: string,
+    cor: string
   }
 }
 
