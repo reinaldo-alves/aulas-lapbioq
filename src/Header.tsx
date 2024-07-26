@@ -1,12 +1,13 @@
-import { useEffect, useState } from 'react';
-import {dbCollection, dbAdd, authSignOut, dbOrderBy, dbOnSnapshot } from './firebase'
+import { useState } from 'react';
+import {dbCollection, dbAdd, authSignOut } from './firebase'
 import { v4 as uuidv4 } from 'uuid';
-import { abrirModal, fecharModal } from './functions';
+import { abrirModal, fecharModal, generateHorario } from './functions';
 import { User } from 'firebase/auth';
 import Logo from './images/logo-bioquimica.jpg';
 import AulaImg from './images/class.png';
-import TecImg from './images/tecnician.png';
-import HistImg from './images/history.png';
+import CronImg from './images/add_cronograma.png';
+import FeriImg from './images/add_holiday.png';
+import PDFImg from './images/gerar_pdf.png';
 import { useNavigate } from 'react-router-dom';
 import { ICurso } from './types';
 
@@ -43,6 +44,7 @@ function Header(props: IProps) {
     const [outro, setOutro] = useState(false);
     const [arrayDatas, setArrayDatas] = useState(Array(30).fill(''));
     const [feriado, setFeriado] = useState('');
+    const [pdf, setPdf] = useState('');
 
     const navigate = useNavigate();
 
@@ -128,28 +130,6 @@ function Header(props: IProps) {
     
     return (
         <aside>
-        
-            <div className="modal modalAula">
-                <div onClick={() => fecharModal('.modalAula')} className="close-modal">X</div>
-                <div className="modalContainer">
-                    <h2>Gerenciar Aulas</h2>
-                    <button onClick={(e) => {
-                        fecharModal('.modalAula');
-                        abrirModal(e, '.modalAddAula')
-                    }}>Adicionar Aula</button>
-                    <br/>
-                    <button onClick={(e) => {
-                        fecharModal('.modalAula');
-                        abrirModal(e, '.modalAddCronograma')
-                    }}>Adicionar Cronograma</button>
-                    <br/>
-                    <button onClick={(e) => {
-                        fecharModal('.modalAula');
-                        abrirModal(e, '.modalAddFeriado')
-                    }}>Adicionar Feriados</button>
-                </div>
-            </div>
-
             <div className="modal modalAddAula">
                 <div onClick={() => {
                     fecharModal('.modalAddAula');
@@ -224,15 +204,22 @@ function Header(props: IProps) {
                 </div>
             </div>
 
-            <div className="modal modalHistorico">
-                <div onClick={() => fecharModal('.modalHistorico')} className="close-modal">X</div>
+            <div className="modal modalPDF">
+                <div onClick={() => {
+                    fecharModal('.modalPDF');
+                    setPdf('');
+                }} className="close-modal">X</div>
                 <div className="modalContainer">
-                    <h2>Aulas Anteriores</h2>
-                    <form id='form-upload' onSubmit={(e) => {}}>
-                        <input id='titulo-upload' type="text" placeholder='Nome da sua foto...' />
-                        <input onChange={(e) => {}} type="file" name='file' />
-                        <input type="submit" value='Postar no Instagram!' />
+                    <h2>Imprimir Horário</h2>
+                    <form>
+                        <label>Selecione um mês</label>
+                        <input type="month" value={pdf} onChange={(e) => setPdf(e.target.value)} />
                     </form>
+                    <button onClick={() => {
+                        generateHorario(pdf);
+                        fecharModal('.modalPDF');
+                        setPdf('');
+                    }} disabled={false}>Gerar Horário</button>
                 </div>
             </div>
             
@@ -243,13 +230,21 @@ function Header(props: IProps) {
                 <div className='header_icons'>
                     {props.user?.email ?
                         <>        
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAula')} >
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAddAula')} >
                                 <img src={AulaImg} alt='Aulas' />
-                                <span>Aulas</span>
+                                <span>Adicionar Aulas</span>
                             </div>
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalHistorico')} >
-                                <img src={HistImg} alt='Histórico' />
-                                <span>Histórico</span>
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAddCronograma')} >
+                                <img src={CronImg} alt='Aulas' />
+                                <span>Adicionar Cronograma</span>
+                            </div>
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAddFeriado')} >
+                                <img src={FeriImg} alt='Aulas' />
+                                <span>Adicionar Feriado</span>
+                            </div>
+                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalPDF')} >
+                                <img src={PDFImg} alt='Histórico' />
+                                <span>Imprimir Horário</span>
                             </div>
                             <div className="option-item" onClick={(e) => handleLogout(e)} >
                                 <img src='https://cdn-icons-png.flaticon.com/512/126/126467.png' alt='Sair' />

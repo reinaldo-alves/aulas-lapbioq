@@ -13,14 +13,13 @@ aside {
     height: 100vh;
     padding: 12px 15px;
     border-right: 1px solid rgb(220, 220, 220);
-    transition: 0.5s;
     position: fixed;
     z-index: 1;
     background-color: white;
 }
 
 aside:hover {
-    width: 200px;
+    width: 250px;
 }
 
 button, input[type=submit] {

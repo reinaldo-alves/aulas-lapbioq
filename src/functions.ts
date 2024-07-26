@@ -1,3 +1,8 @@
+import pdfMake from 'pdfmake/build/pdfmake';
+import pdfTimes from 'pdfmake/build/vfs_fonts';
+import { Content, TDocumentDefinitions } from 'pdfmake/interfaces';
+import { timesRegular, timesBold, timesItalic, timesBI } from './TimesFont';
+
 export function convertStringToHour(now: Date, time: string) {
     const [hours, minutes] = time.split(':').map(Number);
     now.setHours(hours, minutes, 0, 0);
@@ -28,4 +33,22 @@ export function abrirModal(e: React.MouseEvent<any>, selector: string){
     if(modal){
         modal.style.display = 'block';
     }
+}
+
+pdfMake.vfs = pdfTimes.pdfMake.vfs;
+window.pdfMake.vfs['times.ttf'] = timesRegular;
+window.pdfMake.vfs['timesbd.ttf'] = timesBold;
+window.pdfMake.vfs['timesi.ttf'] = timesItalic;
+window.pdfMake.vfs['timesbi.ttf'] = timesBI;
+pdfMake.fonts = {
+    Times: {
+        normal: 'times.ttf',
+        bold: 'timesbd.ttf',
+        italics: 'timesi.ttf',
+        bolditalics: 'timesbi.ttf'
+    }
+}
+
+export function generateHorario(date: string) {
+    
 }

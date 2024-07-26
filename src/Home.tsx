@@ -2,7 +2,7 @@ import { dbOnSnapshot, dbOrderBy, dbCollection, dbDel, dbEdt } from "./firebase"
 import { abrirModal, convertDateToString, displayedHour, fecharModal } from "./functions";
 import Header from "./Header";
 import { IAula, ICurso, IFeriado, ITecnico } from "./types"
-import { RefObject, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 
 interface IProps {
     user: any
@@ -35,12 +35,18 @@ function Home(props: IProps) {
     const setDayRef = (index: number, element: HTMLDivElement | null) => {
         dayRefs.current[index] = element;
     };
-    
-    // const scrollToToday = (dayRef: RefObject<HTMLDivElement>) => {
-    //     if (dayRef && dayRef.current) {
-    //         dayRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    //     }
-    // };
+
+    const targetDate = () => {
+        const getNextMonday = (date: Date): Date => {
+            const day = date.getDay();
+            const diff = day === 0 ? 1 : (day === 6 ? 2 : 0);
+            const nextMonday = new Date(date);
+            nextMonday.setDate(date.getDate() + diff);
+            return nextMonday;
+        };
+        const finalValue = now.getDay() === 0 || now.getDay() === 6 ? getNextMonday(now) : now;
+        return finalValue;
+    };
     
     const clickSingleClass = (e: React.MouseEvent, aula: IAula) => {
         if(props.user?.email) {
@@ -84,8 +90,9 @@ function Home(props: IProps) {
     }
 
     useEffect(() => {
-        if (dayRefs.current[86]) {
-            dayRefs.current[86]?.scrollIntoView({ behavior: 'smooth' });
+        const targetIndex = arrayDatas.filter(item => item.getDay() > 0 && item.getDay() < 6).findIndex((item) => convertDateToString(item) === convertDateToString(targetDate()));;
+        if (dayRefs.current[targetIndex]) {
+            dayRefs.current[targetIndex]?.scrollIntoView({ behavior: 'smooth' });
         }
     }, []);
 
