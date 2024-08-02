@@ -141,7 +141,7 @@ function Home(props: IProps) {
    
     return (
         <>
-            <Header user={props.user} setUser={props.setUser} cursos={cursos} />
+            <Header user={props.user} setUser={props.setUser} cursos={cursos} aulas={aulas} defaultFeriados={defaultFeriados} feriados={feriados}/>
             <div className="mainContainer">
                 {arrayDatas.filter(item => item.getDay() > 0 && item.getDay() < 6).map((item, index) => {
                     return (

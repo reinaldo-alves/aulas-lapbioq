@@ -9,12 +9,15 @@ import CronImg from './images/add_cronograma.png';
 import FeriImg from './images/add_holiday.png';
 import PDFImg from './images/gerar_pdf.png';
 import { useNavigate } from 'react-router-dom';
-import { ICurso } from './types';
+import { IAula, ICurso, IFeriado } from './types';
 
 interface IProps {
     user: User,
     setUser: React.Dispatch<React.SetStateAction<any>>,
-    cursos: Array<ICurso>
+    cursos: Array<ICurso>,
+    aulas: Array<IAula>,
+    defaultFeriados: Array<string>,
+    feriados: Array<IFeriado>
 }
 
 const defaultAula = {
@@ -216,10 +219,10 @@ function Header(props: IProps) {
                         <input type="month" value={pdf} onChange={(e) => setPdf(e.target.value)} />
                     </form>
                     <button onClick={() => {
-                        generateHorario(pdf);
+                        generateHorario(pdf, props.aulas, props.defaultFeriados, props.feriados);
                         fecharModal('.modalPDF');
                         setPdf('');
-                    }} disabled={false}>Gerar Horário</button>
+                    }} disabled={!pdf}>Gerar Horário</button>
                 </div>
             </div>
             
