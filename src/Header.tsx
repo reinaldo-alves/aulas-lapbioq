@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import {dbCollection, dbAdd, authSignOut } from './firebase'
+import { dbCollection, dbAdd, authSignOut } from './firebase'
 import { v4 as uuidv4 } from 'uuid';
 import { abrirModal, fecharModal, generateHorario } from './functions';
 import { User } from 'firebase/auth';
@@ -9,7 +9,7 @@ import CronImg from './images/add_cronograma.png';
 import FeriImg from './images/add_holiday.png';
 import PDFImg from './images/gerar_pdf.png';
 import { useNavigate } from 'react-router-dom';
-import { IAula, ICurso, IFeriado } from './types';
+import { IAula, ICurso, IFeriado, ITecnico } from './types';
 
 interface IProps {
     user: User,
@@ -17,7 +17,8 @@ interface IProps {
     cursos: Array<ICurso>,
     aulas: Array<IAula>,
     defaultFeriados: Array<string>,
-    feriados: Array<IFeriado>
+    feriados: Array<IFeriado>,
+    tecnicos: Array<ITecnico>
 }
 
 const defaultAula = {
@@ -218,6 +219,9 @@ function Header(props: IProps) {
                         <label>Selecione um mês</label>
                         <input type="month" value={pdf} onChange={(e) => setPdf(e.target.value)} />
                     </form>
+                    {pdf && props.tecnicos.map((item: ITecnico) => (
+                        <p>{item.info.nome} - {props.aulas.filter((aula: IAula) => aula.info.tecnico === item.info.nome && aula.info.data.includes(pdf)).length} aulas</p>
+                    ))}
                     <button onClick={() => {
                         generateHorario(pdf, props.aulas, props.defaultFeriados, props.feriados);
                         fecharModal('.modalPDF');
