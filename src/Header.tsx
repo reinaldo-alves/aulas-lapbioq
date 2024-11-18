@@ -1,13 +1,13 @@
 import { useState } from 'react';
 import { dbCollection, dbAdd, authSignOut } from './firebase'
 import { v4 as uuidv4 } from 'uuid';
-import { abrirModal, fecharModal, generateHorario } from './functions';
+import { abrirModal, convertDateToString, fecharModal, generateHorario } from './functions';
 import { User } from 'firebase/auth';
-import Logo from './images/logo-bioquimica.jpg';
 import AulaImg from './images/class.png';
 import CronImg from './images/add_cronograma.png';
 import FeriImg from './images/add_holiday.png';
 import PDFImg from './images/gerar_pdf.png';
+import CountImg from './images/count.png';
 import { useNavigate } from 'react-router-dom';
 import { IAula, ICurso, IFeriado, ITecnico } from './types';
 
@@ -49,6 +49,7 @@ function Header(props: IProps) {
     const [arrayDatas, setArrayDatas] = useState(Array(30).fill(''));
     const [feriado, setFeriado] = useState('');
     const [pdf, setPdf] = useState('');
+    const [countAulas, setCountAulas] = useState([{mes: '', aulas: [] as Array<IAula>}]);
 
     const navigate = useNavigate();
 
@@ -75,6 +76,24 @@ function Header(props: IProps) {
         setArrayDatas(newArrayDatas);
     };
 
+    const fillCountAulas = () => {
+        const months = [];
+        for (let i = 0; i < 12; i++) {
+            const date = new Date();
+            date.setMonth(date.getMonth() - i);
+
+            const year = date.getFullYear();
+            const month = (date.getMonth() + 1).toString().padStart(2, '0');
+
+            months.unshift({mes: `${year}-${month}`, aulas: props.aulas.filter((aula: IAula) => aula.info.data.includes(`${year}-${month}`))});
+        }
+        return months;
+    }
+
+    const removeResult = (mes: string) => {
+        setCountAulas((prevData) => prevData.filter((item) => item.mes !== mes));
+    }
+
     function handleLogout(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
         e.preventDefault();
         authSignOut((val) => {
@@ -86,7 +105,7 @@ function Header(props: IProps) {
     function addAula() {
         if (newAula.nome && newAula.curso && newAula.data && newAula.inicio && newAula.termino) {
             const aulasRef = dbCollection('aulas');
-            dbAdd(aulasRef, uuidv4(), {
+            dbAdd(aulasRef, `${newAula.data}-${uuidv4()}`, {
                 nome: newAula.nome,
                 curso: newAula.curso,
                 data: newAula.data,
@@ -106,7 +125,7 @@ function Header(props: IProps) {
         curso.info.aulas.forEach((item, index) => {
             if (arrayDatas[index]) {
                 const aulasRef = dbCollection('aulas');
-                dbAdd(aulasRef, uuidv4(), {
+                dbAdd(aulasRef, `${arrayDatas[index]}-${uuidv4()}`, {
                     nome: item.nome,
                     curso: curso.info.nome,
                     data: arrayDatas[index],
@@ -124,7 +143,7 @@ function Header(props: IProps) {
 
     function addFeriado() {
         const feriadosRef = dbCollection('feriados');
-        dbAdd(feriadosRef, uuidv4(), {
+        dbAdd(feriadosRef, `${feriado}-${uuidv4()}`, {
             data: feriado,
         })
         alert('Feriado adicionado com sucesso!');
@@ -134,13 +153,60 @@ function Header(props: IProps) {
     
     return (
         <aside>
+            <div className="modal modalMainMenu">
+                <div onClick={() => fecharModal('.modalMainMenu')} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2>Menu Principal</h2>
+                    <div className="main-menu-item" onClick={(e) => {
+                        fecharModal('.modalMainMenu');
+                        abrirModal(e, '.modalAddAula');
+                    }}>
+                        <img src={AulaImg} alt='Adicionar Aula' />
+                        <span>Adicionar Aula</span>
+                    </div>
+                    <div className="main-menu-item" onClick={(e) => {
+                        fecharModal('.modalMainMenu');
+                        abrirModal(e, '.modalAddCronograma');
+                    }}>
+                        <img src={CronImg} alt='Adicionar Cronograma' />
+                        <span>Adicionar Cronograma</span>
+                    </div>
+                    <div className="main-menu-item" onClick={(e) => {
+                        fecharModal('.modalMainMenu');
+                        abrirModal(e, '.modalAddFeriado');
+                    }}>
+                        <img src={FeriImg} alt='Adicionar Feriado' />
+                        <span>Adicionar Feriado</span>
+                    </div>
+                    <div className="main-menu-item" onClick={(e) => {
+                        setCountAulas(fillCountAulas());
+                        fecharModal('.modalMainMenu');
+                        abrirModal(e, '.modalCount');
+                    }}>
+                        <img src={CountImg} alt='Imprimir Horário' />
+                        <span>Contagem de Aulas</span>
+                    </div>
+                    <div className="main-menu-item" onClick={(e) => {
+                        fecharModal('.modalMainMenu');
+                        abrirModal(e, '.modalPDF');
+                    }}>
+                        <img src={PDFImg} alt='Imprimir Horário' />
+                        <span>Imprimir Horário</span>
+                    </div>
+                    <div className="main-menu-item" onClick={(e) => handleLogout(e)} >
+                        <img src='https://cdn-icons-png.flaticon.com/512/126/126467.png' alt='Sair' />
+                        <span>Sair</span>
+                    </div>
+                </div>
+            </div>
+            
             <div className="modal modalAddAula">
                 <div onClick={() => {
                     fecharModal('.modalAddAula');
                     setNewAula(defaultAula);
                 }} className="close-modal">X</div>
                 <div className="modalContainer">
-                    <h2 onClick={() => console.log(newAula)}>Adicionar Aula</h2>
+                    <h2>Adicionar Aula</h2>
                     <form>
                         <label>Nome da aula</label>
                         <input type="text" value={newAula.nome} onChange={(e) => updateProps('nome', e.target.value)} />
@@ -173,7 +239,7 @@ function Header(props: IProps) {
                     setArrayDatas(Array(30).fill(''));
                 }} className="close-modal">X</div>
                 <div className="modalContainer">
-                    <h2 onClick={() => console.log(newAula)}>Adicionar Cronograma</h2>
+                    <h2>Adicionar Cronograma</h2>
                     <form>
                         <label>Selecione o curso</label>
                         <select value={curso.id} onChange={(e) => setCurso(props.cursos.find(item => item.id === e.target.value) || defaultCurso)}>
@@ -208,6 +274,41 @@ function Header(props: IProps) {
                 </div>
             </div>
 
+            <div className="modal modalCount">
+                <div onClick={() => {
+                    fecharModal('.modalCount');
+                    setCountAulas([]);
+                }} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2 onClick={() => console.log(countAulas)}>Contagem de Aulas</h2>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Mês</th>
+                                {props.tecnicos.map((item: ITecnico) => <th>{item.info.nome}</th>)}
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {countAulas.map((item: {mes: string, aulas: Array<IAula>}) => (
+                                item.aulas.length > 0 ? 
+                                    <tr className='count-result' onClick={() => removeResult(item.mes)}>
+                                        <td>{item.mes.split('-')[1]}/{item.mes.split('-')[0]}</td>
+                                        {props.tecnicos.map((tec: ITecnico) => <td>{item.aulas.filter((aula: IAula) => aula.info.tecnico === tec.info.nome).length}</td>)}
+                                    </tr>
+                                : ''
+                            ))}
+                        </tbody>
+                        <tfoot>
+                            <tr>
+                                <td>Total</td>
+                                {props.tecnicos.map((tec: ITecnico) => <td>{countAulas.reduce((total, item) => {return total + item.aulas.filter((aula: IAula) => aula.info.tecnico === tec.info.nome).length}, 0)}</td>)}
+                            </tr>
+                        </tfoot>
+                    </table>
+                    <span>Clique sobre um mês para remover da contagem</span>
+                </div>
+            </div>
+
             <div className="modal modalPDF">
                 <div onClick={() => {
                     fecharModal('.modalPDF');
@@ -219,9 +320,6 @@ function Header(props: IProps) {
                         <label>Selecione um mês</label>
                         <input type="month" value={pdf} onChange={(e) => setPdf(e.target.value)} />
                     </form>
-                    {pdf && props.tecnicos.map((item: ITecnico) => (
-                        <p>{item.info.nome} - {props.aulas.filter((aula: IAula) => aula.info.tecnico === item.info.nome && aula.info.data.includes(pdf)).length} aulas</p>
-                    ))}
                     <button onClick={() => {
                         generateHorario(pdf, props.aulas, props.defaultFeriados, props.feriados);
                         fecharModal('.modalPDF');
@@ -230,39 +328,11 @@ function Header(props: IProps) {
                 </div>
             </div>
             
-            <div className="center">
-                <div className="header_logo">
-                    <a className='logo-pict' href='/'><img src={Logo} alt='DBIOq'/></a>
-                </div>
-                <div className='header_icons'>
-                    {props.user?.email ?
-                        <>        
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAddAula')} >
-                                <img src={AulaImg} alt='Aulas' />
-                                <span>Adicionar Aulas</span>
-                            </div>
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAddCronograma')} >
-                                <img src={CronImg} alt='Aulas' />
-                                <span>Adicionar Cronograma</span>
-                            </div>
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalAddFeriado')} >
-                                <img src={FeriImg} alt='Aulas' />
-                                <span>Adicionar Feriado</span>
-                            </div>
-                            <div className="option-item" onClick={(e) => abrirModal(e, '.modalPDF')} >
-                                <img src={PDFImg} alt='Histórico' />
-                                <span>Imprimir Horário</span>
-                            </div>
-                            <div className="option-item" onClick={(e) => handleLogout(e)} >
-                                <img src='https://cdn-icons-png.flaticon.com/512/126/126467.png' alt='Sair' />
-                                <span>Sair</span>
-                            </div>
-                        </>
-                    :
-                        <button className='btn-login' onClick={() => navigate('/login')}>Login</button>
-                    }                   
-                </div>
-            </div>
+            {props.user?.email ?
+                <div className='btn-menu' onClick={(e) => abrirModal(e, '.modalMainMenu')}>Menu</div>
+            :
+                <button className='btn-login' onClick={() => navigate('/login')}>Login</button>
+            }                   
         </aside> 
     )
 }

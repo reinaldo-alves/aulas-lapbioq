@@ -9,7 +9,7 @@ interface IProps {
     setUser: React.Dispatch<React.SetStateAction<any>>
 }
 
-const defaultFeriados = ['01-01', '04-21', '05-01', '07-16', '09-07', '10-12', '11-02', '11-15', '12-08', '12-24', '12-25', '12-31'];
+const defaultFeriados = ['01-01', '04-21', '05-01', '07-16', '09-07', '10-12', '11-02', '11-15', '11-20', '12-08', '12-24', '12-25', '12-31'];
 
 function Home(props: IProps) {
     
