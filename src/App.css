@@ -166,6 +166,20 @@ button:disabled, input[type=submit]:disabled {
     font-weight: bold;
 }
 
+.modalCount p {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    justify-content: center;
+    align-items: center;
+    margin-bottom: 15px;
+}
+
+.modal p input {
+    width: 200px;
+    margin: 0;
+}
+
 table {
     width: 100%;
     border-collapse: collapse;
@@ -176,11 +190,6 @@ th, td {
     border: 1px solid #ccc;
     padding: 5px;
     text-align: center;
-}
-
-.count-result:hover {
-    cursor: pointer;
-    background-color: #eee;
 }
 
 tfoot {

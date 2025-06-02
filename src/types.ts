@@ -36,3 +36,10 @@ export interface IFeriado {
     data: string
   }
 }
+
+export interface IDate {
+  id: string,
+  info: {
+    mes: string
+  }
+}

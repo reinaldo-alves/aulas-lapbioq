@@ -1,7 +1,7 @@
-import { useState } from 'react';
-import { dbCollection, dbAdd, authSignOut } from './firebase'
+import { useEffect, useState } from 'react';
+import { dbCollection, dbAdd, authSignOut, dbOrderBy, dbOnSnapshot, dbEdt } from './firebase'
 import { v4 as uuidv4 } from 'uuid';
-import { abrirModal, convertDateToString, fecharModal, generateHorario } from './functions';
+import { abrirModal, fecharModal, generateHorario } from './functions';
 import { User } from 'firebase/auth';
 import AulaImg from './images/class.png';
 import CronImg from './images/add_cronograma.png';
@@ -9,7 +9,7 @@ import FeriImg from './images/add_holiday.png';
 import PDFImg from './images/gerar_pdf.png';
 import CountImg from './images/count.png';
 import { useNavigate } from 'react-router-dom';
-import { IAula, ICurso, IFeriado, ITecnico } from './types';
+import { IAula, ICurso, IDate, IFeriado, ITecnico } from './types';
 
 interface IProps {
     user: User,
@@ -50,6 +50,7 @@ function Header(props: IProps) {
     const [feriado, setFeriado] = useState('');
     const [pdf, setPdf] = useState('');
     const [countAulas, setCountAulas] = useState([{mes: '', aulas: [] as Array<IAula>}]);
+    const [startMonth, setStartMonth] = useState({} as IDate);
 
     const navigate = useNavigate();
 
@@ -78,20 +79,31 @@ function Header(props: IProps) {
 
     const fillCountAulas = () => {
         const months = [];
-        for (let i = 0; i < 12; i++) {
+        const [year_i, month_i] = startMonth.info.mes.split('-').map(Number);
+        const now = new Date();
+        const [year_f, month_f] = [now.getFullYear(), (now.getMonth() + 1)];
+        const diff = (year_f - year_i) * 12 + (month_f - month_i) + 1;
+        console.log('A diferença é: '+ diff)
+        for (let i = 0; i < diff + 2; i++) {
             const date = new Date();
-            date.setMonth(date.getMonth() - i);
+            date.setDate(1);
+            date.setMonth(date.getMonth() + 2 - i);
 
             const year = date.getFullYear();
             const month = (date.getMonth() + 1).toString().padStart(2, '0');
+            const classesWithTecnico = props.aulas.filter((aula: IAula) => aula.info.data.includes(`${year}-${month}`) && aula.info.tecnico);
 
-            months.unshift({mes: `${year}-${month}`, aulas: props.aulas.filter((aula: IAula) => aula.info.data.includes(`${year}-${month}`))});
+            if (i > 1 || classesWithTecnico.length > 0) {
+                months.unshift({mes: `${year}-${month}`, aulas: props.aulas.filter((aula: IAula) => aula.info.data.includes(`${year}-${month}`))});
+            }
         }
         return months;
     }
 
-    const removeResult = (mes: string) => {
-        setCountAulas((prevData) => prevData.filter((item) => item.mes !== mes));
+    const editStartDate = (mes: string, id: string) => {
+        dbEdt('contagem', id, {mes});
+        fecharModal('.modalCount');
+        alert('Mês de início da contagem alterado com sucesso');
     }
 
     function handleLogout(e: React.MouseEvent<HTMLDivElement, MouseEvent>) {
@@ -150,6 +162,18 @@ function Header(props: IProps) {
         fecharModal('.modalAddFeriado');
         setFeriado('');
     }
+
+    useEffect(() => {
+        const dbQuery = dbOrderBy(dbCollection("contagem"), 'mes', 'asc');
+        const unsubscribe = dbOnSnapshot(dbQuery, (querySnapshot) => {
+          const contagem: IDate[] = [];
+          querySnapshot.forEach((doc) => {
+            const data = doc.data() as IDate["info"];
+            contagem.push({ id: doc.id, info: data });
+          });
+        setStartMonth(contagem[0]);
+        });
+    }, []);
     
     return (
         <aside>
@@ -281,19 +305,20 @@ function Header(props: IProps) {
                 }} className="close-modal">X</div>
                 <div className="modalContainer">
                     <h2 onClick={() => console.log(countAulas)}>Contagem de Aulas</h2>
+                    <p>Contar a partir de: <input type='month' value={startMonth.info?.mes || ''} onChange={(e) => editStartDate(e.target.value, startMonth.id)} /></p>
                     <table>
                         <thead>
                             <tr>
                                 <th>Mês</th>
-                                {props.tecnicos.map((item: ITecnico) => <th>{item.info.nome}</th>)}
+                                {props.tecnicos.map((item: ITecnico) => <th key={item.id}>{item.info.nome}</th>)}
                             </tr>
                         </thead>
                         <tbody>
-                            {countAulas.map((item: {mes: string, aulas: Array<IAula>}) => (
+                            {countAulas.map((item: {mes: string, aulas: Array<IAula>}, index: number) => (
                                 item.aulas.length > 0 ? 
-                                    <tr className='count-result' onClick={() => removeResult(item.mes)}>
+                                    <tr key={index}>
                                         <td>{item.mes.split('-')[1]}/{item.mes.split('-')[0]}</td>
-                                        {props.tecnicos.map((tec: ITecnico) => <td>{item.aulas.filter((aula: IAula) => aula.info.tecnico === tec.info.nome).length}</td>)}
+                                        {props.tecnicos.map((tec: ITecnico) => <td key={tec.id}>{item.aulas.filter((aula: IAula) => aula.info.tecnico === tec.info.nome).length}</td>)}
                                     </tr>
                                 : ''
                             ))}
@@ -301,11 +326,10 @@ function Header(props: IProps) {
                         <tfoot>
                             <tr>
                                 <td>Total</td>
-                                {props.tecnicos.map((tec: ITecnico) => <td>{countAulas.reduce((total, item) => {return total + item.aulas.filter((aula: IAula) => aula.info.tecnico === tec.info.nome).length}, 0)}</td>)}
+                                {props.tecnicos.map((tec: ITecnico) => <td key={tec.id}>{countAulas.reduce((total, item) => {return total + item.aulas.filter((aula: IAula) => aula.info.tecnico === tec.info.nome).length}, 0)}</td>)}
                             </tr>
                         </tfoot>
                     </table>
-                    <span>Clique sobre um mês para remover da contagem</span>
                 </div>
             </div>
 
