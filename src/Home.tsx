@@ -1,3 +1,4 @@
+import AppMenu from "./AppMenu";
 import { dbOnSnapshot, dbOrderBy, dbCollection, dbDel, dbEdt } from "./firebase";
 import { abrirModal, convertDateToString, displayedHour, fecharModal } from "./functions";
 import Header from "./Header";
@@ -8,8 +9,6 @@ interface IProps {
     user: any
     setUser: React.Dispatch<React.SetStateAction<any>>
 }
-
-const defaultFeriados = ['01-01', '04-21', '05-01', '07-16', '09-07', '10-12', '11-02', '11-15', '11-20', '12-08', '12-24', '12-25', '12-31'];
 
 function Home(props: IProps) {
     
@@ -67,10 +66,13 @@ function Home(props: IProps) {
 
     const deleteAula = (aula: IAula) => {
         dbDel("aulas", aula.id);
-        alert('Aula excluída com sucesso');
-        fecharModal(`#id_${aula.id}`);
-        setEditAula({} as IAula);
-        setOption('');
+        const prosseguir = window.confirm('Tem certeza que quer excluir essa aula?');
+        if (prosseguir) {
+            alert('Aula excluída com sucesso');
+            fecharModal(`#id_${aula.id}`);
+            setEditAula({} as IAula);
+            setOption('');
+        }
     }
 
     const editTecnico = (aula: IAula) => {
@@ -141,7 +143,8 @@ function Home(props: IProps) {
    
     return (
         <>
-            <Header user={props.user} setUser={props.setUser} cursos={cursos} aulas={aulas} defaultFeriados={defaultFeriados} feriados={feriados} tecnicos={tecnicos} />
+            <AppMenu />
+            <Header user={props.user} setUser={props.setUser} cursos={cursos} aulas={aulas} feriados={feriados} tecnicos={tecnicos} />
             <div className="mainContainer">
                 {arrayDatas.filter(item => item.getDay() > 0 && item.getDay() < 6).map((item, index) => {
                     return (
@@ -150,8 +153,8 @@ function Home(props: IProps) {
                                 <span>{formatLongDate.format(item)}{convertDateToString(item) === convertDateToString(now) ? " - HOJE" : ""}</span>
                                 <span>{formatWeekday.format(item)}</span>
                             </div>
-                            <div className={`bodyDay${item.getDay() === 5 ? " bdFriday" : ""}${defaultFeriados.includes(convertDateToString(item).slice(5)) || feriados.some(el => el.info.data === convertDateToString(item)) ? " bdHoliday" : ""}`}>
-                                {defaultFeriados.includes(convertDateToString(item).slice(5)) || feriados.some(el => el.info.data === convertDateToString(item)) ? 
+                            <div className={`bodyDay${item.getDay() === 5 ? " bdFriday" : ""}${feriados.some(el => el.info.data === convertDateToString(item)) ? " bdHoliday" : ""}`}>
+                                {feriados.some(el => el.info.data === convertDateToString(item)) ? 
                                     <p>FERIADO</p>
                                 : aulas.filter(aula => aula.info.data === convertDateToString(item)).map(aula => (
                                     <div key={aula.id}>

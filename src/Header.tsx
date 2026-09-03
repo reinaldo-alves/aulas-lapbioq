@@ -1,13 +1,15 @@
 import { useEffect, useState } from 'react';
-import { dbCollection, dbAdd, authSignOut, dbOrderBy, dbOnSnapshot, dbEdt } from './firebase'
+import { dbCollection, dbAdd, authSignOut, dbOrderBy, dbOnSnapshot, dbEdt, dbDel } from './firebase'
 import { v4 as uuidv4 } from 'uuid';
-import { abrirModal, fecharModal, generateHorario } from './functions';
+import { abrirModal, displayedDate, fecharModal, generateHorario } from './functions';
 import { User } from 'firebase/auth';
 import AulaImg from './images/class.png';
 import CronImg from './images/add_cronograma.png';
 import FeriImg from './images/add_holiday.png';
 import PDFImg from './images/gerar_pdf.png';
 import CountImg from './images/count.png';
+import HisImg from './images/class_history.png';
+import CurImg from './images/add_course.png';
 import { useNavigate } from 'react-router-dom';
 import { IAula, ICurso, IDate, IFeriado, ITecnico } from './types';
 
@@ -16,7 +18,6 @@ interface IProps {
     setUser: React.Dispatch<React.SetStateAction<any>>,
     cursos: Array<ICurso>,
     aulas: Array<IAula>,
-    defaultFeriados: Array<string>,
     feriados: Array<IFeriado>,
     tecnicos: Array<ITecnico>
 }
@@ -51,6 +52,11 @@ function Header(props: IProps) {
     const [pdf, setPdf] = useState('');
     const [countAulas, setCountAulas] = useState([{mes: '', aulas: [] as Array<IAula>}]);
     const [startMonth, setStartMonth] = useState({} as IDate);
+    const [courseOption, setCourseOption] = useState('');
+    const [historyOrder, setHistoryOrder] = useState('recant');
+    const [filterAula, setFilterAula] = useState('');
+    const [filterCurso, setFilterCurso] = useState('');
+    const [filterTecnico, setFilterTecnico] = useState('');
 
     const navigate = useNavigate();
 
@@ -60,6 +66,65 @@ function Header(props: IProps) {
             [property]: newValue
         }));
     };
+
+    const updatePropsCurso = (property: 'nome' | 'inicio' | 'termino', newValue: string, index?: number) => {
+        setCurso((prevData) => {
+            if (property === 'nome' && index === undefined) {
+                return {
+                    ...prevData,
+                    info: {
+                        ...prevData.info,
+                        nome: newValue
+                    }
+                }
+            }
+            if (index !== undefined) {
+                const updAulas = prevData.info.aulas.map((a, i) => {
+                    if (i === index) {
+                        return {
+                            ...a,
+                            [property]: newValue
+                        }
+                    }
+                    return a;
+                }) 
+                return {
+                    ...prevData,
+                    info: {
+                        ...prevData.info,
+                        aulas: updAulas
+                    }
+                }
+            }
+            return prevData;
+        });
+    };
+
+    const addAulaCurso = () => {
+        setCurso((prevData) => {
+            const newAula = {nome: '', inicio: '', termino: ''};
+            return {
+                ...prevData,
+                info: {
+                    ...prevData.info,
+                    aulas: [...prevData.info.aulas, newAula]
+                }
+            }
+        })
+    }
+
+    const deleteAulaCurso = (index: number) => {
+        setCurso((prevData) => {
+            const filtered = prevData.info.aulas.filter((_, i) => i !== index);
+            return {
+                ...prevData,
+                info: {
+                    ...prevData.info,
+                    aulas: filtered
+                }
+            }
+        })
+    }
 
     const handleSelectChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
         const value = e.target.value;
@@ -153,14 +218,71 @@ function Header(props: IProps) {
         setArrayDatas(Array(30).fill(''));
     }
 
+    function addCurso() {
+        let val = true; 
+        curso.info.aulas.forEach((item) => {
+            if (!item.inicio || !item.termino || !item.nome) { val = false };
+        })
+        if (curso.info.nome && curso.info.aulas.length > 0 && val) {
+            const cursosRef = dbCollection('cursos');
+            dbAdd(cursosRef, uuidv4(), {
+                nome: curso.info.nome,
+                aulas: curso.info.aulas
+            })
+            alert('Curso adicionado com sucesso!');
+            fecharModal('.modalCourse');
+            setCurso(defaultCurso);
+            setCourseOption('');
+        } else {
+            alert('Preencha todas as informações e tente novamente');
+        }
+    }
+
+    const editCurso = (id: string) => {
+        let val = true; 
+        curso.info.aulas.forEach((item) => {
+            if (!item.inicio || !item.termino || !item.nome) { val = false };
+        })
+        if (curso.info.nome && curso.info.aulas.length > 0 && val) {
+            dbEdt("cursos", id, curso.info);
+            alert('Curso editado com sucesso');
+            fecharModal('.modalCourse');
+            setCurso(defaultCurso);
+            setCourseOption('');
+        } else {
+            alert('Preencha todas as informações e tente novamente');
+        }
+    }
+
     function addFeriado() {
         const feriadosRef = dbCollection('feriados');
         dbAdd(feriadosRef, `${feriado}-${uuidv4()}`, {
             data: feriado,
         })
         alert('Feriado adicionado com sucesso!');
-        fecharModal('.modalAddFeriado');
+        fecharModal('.modalFeriado');
         setFeriado('');
+    }
+
+    function deleteCurso(curso: ICurso) {
+        const prosseguir = window.confirm(`Excluir o curso de ${curso.info.nome}?`);
+        if (prosseguir){
+            dbDel("cursos", curso.id);
+            alert(`Curso de ${curso.info.nome} excluído com sucesso`);
+            fecharModal('.modalCourse');
+            setCurso(defaultCurso);
+            setCourseOption('');
+        }
+    }
+
+    function deleteFeriado(feriado: IFeriado) {
+        const dia = displayedDate(feriado.info.data);
+        const prosseguir = window.confirm(`Excluir o feriado do dia ${dia}?`);
+        if (prosseguir){
+            dbDel("feriados", feriado.id);
+            alert(`Feriado ${dia} excluído com sucesso`);
+            fecharModal('.modalFeriado');
+        }
     }
 
     useEffect(() => {
@@ -176,7 +298,7 @@ function Header(props: IProps) {
     }, []);
     
     return (
-        <aside>
+        <aside id='asideMenu'>
             <div className="modal modalMainMenu">
                 <div onClick={() => fecharModal('.modalMainMenu')} className="close-modal">X</div>
                 <div className="modalContainer">
@@ -197,18 +319,32 @@ function Header(props: IProps) {
                     </div>
                     <div className="main-menu-item" onClick={(e) => {
                         fecharModal('.modalMainMenu');
-                        abrirModal(e, '.modalAddFeriado');
+                        abrirModal(e, '.modalFeriado');
                     }}>
-                        <img src={FeriImg} alt='Adicionar Feriado' />
-                        <span>Adicionar Feriado</span>
+                        <img src={FeriImg} alt='Feriados' />
+                        <span>Feriados</span>
+                    </div>
+                    <div className="main-menu-item" onClick={(e) => {
+                        fecharModal('.modalMainMenu');
+                        abrirModal(e, '.modalCourse');
+                    }}>
+                        <img src={CurImg} alt='Cursos' />
+                        <span>Cursos</span>
                     </div>
                     <div className="main-menu-item" onClick={(e) => {
                         setCountAulas(fillCountAulas());
                         fecharModal('.modalMainMenu');
                         abrirModal(e, '.modalCount');
                     }}>
-                        <img src={CountImg} alt='Imprimir Horário' />
+                        <img src={CountImg} alt='Contagem de Aulas' />
                         <span>Contagem de Aulas</span>
+                    </div>
+                    <div className="main-menu-item" onClick={(e) => {
+                        fecharModal('.modalMainMenu');
+                        abrirModal(e, '.modalHistory');
+                    }}>
+                        <img src={HisImg} alt='Histórico de Aulas' />
+                        <span>Histórico de Aulas</span>
                     </div>
                     <div className="main-menu-item" onClick={(e) => {
                         fecharModal('.modalMainMenu');
@@ -283,18 +419,107 @@ function Header(props: IProps) {
                 </div>
             </div>
 
-            <div className="modal modalAddFeriado">
+            <div className="modal modalFeriado">
                 <div onClick={() => {
-                    fecharModal('.modalAddFeriado');
+                    fecharModal('.modalFeriado');
                     setFeriado('');
                 }} className="close-modal">X</div>
                 <div className="modalContainer">
-                    <h2>Adicionar Feriado</h2>
+                    <h2>Lista de Feriados</h2>
+                    <div className="feriadoContainer">
+                        {[...props.feriados].reverse().map((f: IFeriado, index: number) => (
+                            <p key={index}>
+                                <span onClick={() => deleteFeriado(f)}>{displayedDate(f.info.data)}</span>
+                            </p>
+                        ))}
+                    </div>
+                    <p style={{marginBottom: '20px'}}>Clique sobre um feriado para excluir</p>
+                    <h3>Adicionar Feriado</h3>
                     <form>
                         <label>Selecione uma data</label>
                         <input type='date' value={feriado} onChange={(e) => setFeriado(e.target.value)}/>
                     </form>
                     <button onClick={() => addFeriado()} disabled={!feriado}>Adicionar</button>
+                </div>
+            </div>
+
+            <div className="modal modalCourse">
+                <div onClick={() => {
+                    fecharModal('.modalCourse');
+                    setCourseOption('');
+                    setCurso(defaultCurso);
+                    setArrayDatas(Array(30).fill(''));
+                }} className="close-modal">X</div>
+                <div className="modalContainer modalSingleClass">
+                    <h2>Lista de Cursos</h2>
+                    {props.cursos.map((c: ICurso) => {
+                        if (courseOption === c.id) {
+                            return (
+                                <>
+                                    <h3 onClick={() => {
+                                        setCourseOption(c.id);
+                                        setCurso(c);
+                                    }} key={c.id}>{c.info.nome}</h3>
+                                    <form>
+                                        <label>Digite o nome do curso</label>
+                                        <input value={curso.info.nome} onChange={(e) => updatePropsCurso('nome', e.target.value)} />
+                                        {curso.info.aulas.map((a, i: number) => (
+                                            <div className='aulaDisplay' key={i}>
+                                                <header>
+                                                    <p></p>
+                                                    <h4>Aula {i+1}</h4>
+                                                    <div onClick={() => deleteAulaCurso(i)}>X</div>
+                                                </header>
+                                                <label>Nome</label>
+                                                <input value={a.nome} onChange={(e) => updatePropsCurso('nome', e.target.value, i)} />
+                                                <label>Início da aula<input type='time' value={a.inicio} onChange={(e) => updatePropsCurso('inicio', e.target.value, i)} /></label>
+                                                <label>Término da aula<input type='time' value={a.termino} onChange={(e) => updatePropsCurso('termino', e.target.value, i)} /></label>                                
+                                            </div>
+                                        ))}
+                                        <button type='button' onClick={() => addAulaCurso()}>Adicionar Aula</button>
+                                        <div className='cursoButton'>
+                                            <button type='button' style={{backgroundColor: 'red'}} onClick={() => deleteCurso(curso)}>Excluir Curso</button>
+                                            <button type='button' onClick={() => editCurso(c.id)}>Salvar Curso</button>
+                                        </div>
+                                    </form>
+                                </>
+                            )
+                        } else {
+                            return (
+                                <h3 onClick={() => {
+                                    setCourseOption(c.id);
+                                    setCurso(c);
+                                }} key={c.id}>{c.info.nome}</h3>
+                            )
+                        }
+                    })}
+                    <button onClick={() => {
+                        setCourseOption('novo');
+                        setCurso(defaultCurso);
+                    }}>Novo Curso</button>
+                    {courseOption === 'novo' && 
+                        <form>
+                            <label>Digite o nome do curso</label>
+                            <input value={curso.info.nome} onChange={(e) => updatePropsCurso('nome', e.target.value)} />
+                            {curso.info.aulas.map((a, i: number) => (
+                                <div className='aulaDisplay' key={i}>
+                                    <header>
+                                        <p></p>
+                                        <h4>Aula {i+1}</h4>
+                                        <div onClick={() => deleteAulaCurso(i)}>X</div>
+                                    </header>
+                                    <label>Nome</label>
+                                    <input value={a.nome} onChange={(e) => updatePropsCurso('nome', e.target.value, i)} />
+                                    <label>Início da aula<input type='time' value={a.inicio} onChange={(e) => updatePropsCurso('inicio', e.target.value, i)} /></label>
+                                    <label>Término da aula<input type='time' value={a.termino} onChange={(e) => updatePropsCurso('termino', e.target.value, i)} /></label>                                
+                                </div>
+                            ))}
+                            <div className='cursoButton'>
+                                <button type='button' onClick={() => addAulaCurso()}>Adicionar Aula</button>
+                                <button type='button' onClick={() => addCurso()}>Salvar Curso</button>
+                            </div>
+                        </form>
+                    }
                 </div>
             </div>
 
@@ -305,7 +530,7 @@ function Header(props: IProps) {
                 }} className="close-modal">X</div>
                 <div className="modalContainer">
                     <h2 onClick={() => console.log(countAulas)}>Contagem de Aulas</h2>
-                    <p>Contar a partir de: <input type='month' value={startMonth.info?.mes || ''} onChange={(e) => editStartDate(e.target.value, startMonth.id)} /></p>
+                    <p>Contar a partir de: <input type='month' value={!startMonth ? '' : startMonth.info?.mes || ''} onChange={(e) => editStartDate(e.target.value, startMonth.id)} /></p>
                     <table>
                         <thead>
                             <tr>
@@ -333,6 +558,65 @@ function Header(props: IProps) {
                 </div>
             </div>
 
+            <div className="modal modalHistory">
+                <div onClick={() => {
+                    fecharModal('.modalHistory');
+                    setHistoryOrder('recant');
+                    setFilterAula('');
+                    setFilterCurso('');
+                    setFilterTecnico('');
+                }} className="close-modal">X</div>
+                <div className="modalContainer">
+                    <h2>Histórico de Aulas</h2>
+                    <p>Ordenar: 
+                        <select onChange={(e) => setHistoryOrder(e.target.value)}>
+                            <option value={'recant'}>Mais recente para mais antigo</option>
+                            <option value={'antrec'}>Mais antigo para mais recente</option>
+                        </select>
+                    </p>
+                    <p>Filtro por aula: 
+                        <input value={filterAula} onChange={(e) => setFilterAula(e.target.value)}/>
+                    </p>
+                    <p>Filtro por curso: 
+                        <select onChange={(e) => setFilterCurso(e.target.value)}>
+                            <option value={''}>Todos</option>
+                            {props.cursos.map((t: ICurso, i: number) => (
+                                <option key={i} value={t.info.nome}>{t.info.nome}</option>
+                            ))}
+                        </select>
+                    </p>
+                    <p>Filtro por técnico: 
+                        <select onChange={(e) => setFilterTecnico(e.target.value)}>
+                            <option value={''}>Todos</option>
+                            {props.tecnicos.map((t: ITecnico, i: number) => (
+                                <option key={i} value={t.info.nome}>{t.info.nome}</option>
+                            ))}
+                        </select>
+                    </p>
+                    <table>
+                        <thead>
+                            <tr>
+                                <th>Data</th>
+                                <th>Aula</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {[...props.aulas]
+                                .sort((a: IAula, b: IAula) => historyOrder === 'antrec' ? a.info.data.localeCompare(b.info.data) : b.info.data.localeCompare(a.info.data))
+                                .filter(item => filterAula === "" || item.info.nome.toLowerCase().includes(filterAula.toLowerCase()))
+                                .filter(item => filterCurso === "" || item.info.curso === filterCurso)
+                                .filter(item => filterTecnico === "" || item.info.tecnico === filterTecnico)
+                                .map((item: IAula, index: number) => (
+                                    <tr key={index}>
+                                        <td>{displayedDate(item.info.data)}</td>
+                                        <td>{item.info.nome} ({item.info.curso})<span style={{display: item.info.tecnico ? 'inline' : 'none', color: `${props.tecnicos.find(t => t.info.nome === item.info.tecnico) ? props.tecnicos.find(t => t.info.nome === item.info.tecnico)?.info.cor : '#000'}`}}> - {item.info.tecnico}</span></td>
+                                    </tr>
+                            ))}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
             <div className="modal modalPDF">
                 <div onClick={() => {
                     fecharModal('.modalPDF');
@@ -345,7 +629,7 @@ function Header(props: IProps) {
                         <input type="month" value={pdf} onChange={(e) => setPdf(e.target.value)} />
                     </form>
                     <button onClick={() => {
-                        generateHorario(pdf, props.aulas, props.defaultFeriados, props.feriados);
+                        generateHorario(pdf, props.aulas, props.feriados);
                         fecharModal('.modalPDF');
                         setPdf('');
                     }} disabled={!pdf}>Gerar Horário</button>

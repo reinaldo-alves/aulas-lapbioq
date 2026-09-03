@@ -5,6 +5,8 @@ import Login from './Login';
 import { User } from 'firebase/auth';
 import Home from './Home';
 import { BrowserRouter, Route, Routes } from 'react-router-dom';
+import Supply from './Supply';
+import Solution from './Solution';
 
 function App() {
 
@@ -24,6 +26,8 @@ function App() {
         <Routes>
           <Route path='/' element={<Home user={user} setUser={setUser}/>} />
           <Route path='/login' element={<Login user={user} setUser={setUser}/>} />
+          <Route path='/estoque' element={<Supply user={user} setUser={setUser}/>} />
+          <Route path='/solucoes' element={<Solution user={user} setUser={setUser}/>} />
         </Routes>
       </BrowserRouter> 
     </div>

@@ -1,45 +1,72 @@
 export interface IAula {
-  id: string,
+  id: string;
   info: {
-    nome: string,
-    curso: string,
-    data: string,
-    inicio: string,
-    termino: string,
-    tecnico: string
-  }
+    nome: string;
+    curso: string;
+    data: string;
+    inicio: string;
+    termino: string;
+    tecnico: string;
+  };
 }
 
 export interface ICurso {
-  id: string,
+  id: string;
   info: {
-    nome: string,
+    nome: string;
     aulas: Array<{
-      nome: string,
-      inicio: string,
-      termino: string,
-    }>
-  }
+      nome: string;
+      inicio: string;
+      termino: string;
+    }>;
+  };
 }
 
 export interface ITecnico {
-  id: string,
+  id: string;
   info: {
-    nome: string,
-    cor: string
-  }
+    nome: string;
+    cor: string;
+  };
 }
 
 export interface IFeriado {
-  id: string,
+  id: string;
   info: {
-    data: string
-  }
+    data: string;
+  };
 }
 
 export interface IDate {
-  id: string,
+  id: string;
   info: {
-    mes: string
-  }
+    mes: string;
+  };
+}
+
+export interface ICategoria {
+  id: string;
+  info: {
+    nome: string;
+  };
+}
+
+export interface IItem {
+  id: string;
+  info: {
+    nome: string;
+    quantidade: number;
+    categoria: string;
+  };
+}
+
+export interface ISolucao {
+  id: string;
+  info: {
+    data: string;
+    nome: string;
+    quantidade: string;
+    tecnico: string;
+    observacao?: string;
+  };
 }

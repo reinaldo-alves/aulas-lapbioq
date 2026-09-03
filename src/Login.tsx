@@ -33,7 +33,7 @@ function Login(props: IProps) {
             <div className='loginContent'>
                 <div className="dataLogin">
                     <div className="formLogin">
-                        <h2>Horário de Aulas Prátias - LAPBIOQ</h2>
+                        <h2>Sistemas de Gestão - LAPBIOQ</h2>
                         <img src={Logo} alt='DBIOq'/>
                         <form onSubmit={(e) => handleLogin(e)}>
                             <input id='email-login' type="text" placeholder='E-mail' />
