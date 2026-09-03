@@ -1,6 +1,7 @@
 import AppMenu from "./AppMenu";
 import { dbOnSnapshot, dbOrderBy, dbCollection, dbDel, dbEdt } from "./firebase";
 import { abrirModal, fecharModal } from "./functions";
+import { PageTitle } from "./PageTitle";
 import SupplyMenu from "./SupplyMenu";
 import { ICategoria, IItem } from "./types"
 import { useEffect, useState } from "react";
@@ -118,10 +119,15 @@ function Supply(props: IProps) {
           });
           setItens(itens);
         });
+        return () => {
+            unsubscribeCa();
+            unsubscribeIt();
+        }
     }, [])
    
     return (
         <>
+            <PageTitle title="Controle de Estoque" />
             <AppMenu />
             <SupplyMenu user={props.user} setUser={props.setUser} categorias={categorias} />
             <div className="mainContainer">

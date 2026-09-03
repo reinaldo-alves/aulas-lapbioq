@@ -1,6 +1,7 @@
 import { authSignIn } from './firebase'
 import Logo from './images/logo-bioquimica.jpg'
 import { useNavigate } from 'react-router-dom';
+import { PageTitle } from './PageTitle';
 
 interface IProps {
     user: any
@@ -30,6 +31,7 @@ function Login(props: IProps) {
     
     return (
         <>
+            <PageTitle title='Login' />
             <div className='loginContent'>
                 <div className="dataLogin">
                     <div className="formLogin">

@@ -2,8 +2,9 @@ import AppMenu from "./AppMenu";
 import { dbOnSnapshot, dbOrderBy, dbCollection, dbDel, dbEdt } from "./firebase";
 import { abrirModal, convertDateToString, displayedHour, fecharModal } from "./functions";
 import Header from "./Header";
+import { PageTitle } from "./PageTitle";
 import { IAula, ICurso, IFeriado, ITecnico } from "./types"
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 
 interface IProps {
     user: any
@@ -19,14 +20,16 @@ function Home(props: IProps) {
     const [option, setOption] = useState('');
     const [editAula, setEditAula] = useState({} as IAula);
     
-    const now = new Date();
+    const now = useMemo(() => new Date(), []);
     const nowTS = now.getTime();
     const dayRefs = useRef([] as Array<HTMLDivElement | null>);
 
-    const arrayDatas = Array.from({ length: 240 }, (_, i) => {
-        let newTS = nowTS - (120 * 24 * 60 * 60 * 1000) + (i * 24 * 60 * 60 * 1000);
-        return new Date(newTS)
-    });
+    const arrayDatas = useMemo(() => {
+        return Array.from({ length: 240 }, (_, i) => {
+           const newTS = nowTS - (120 * 24 * 60 * 60 * 1000) + (i * 24 * 60 * 60 * 1000);
+           return new Date(newTS);
+        });
+    }, [nowTS]);
 
     const formatLongDate = new Intl.DateTimeFormat('pt-BR', { day: 'numeric', month: 'long'});
     const formatWeekday = new Intl.DateTimeFormat('pt-BR', { weekday: 'long'});
@@ -35,17 +38,16 @@ function Home(props: IProps) {
         dayRefs.current[index] = element;
     };
 
-    const targetDate = () => {
+    const targetDate = useMemo(() => {
         const getNextMonday = (date: Date): Date => {
             const day = date.getDay();
-            const diff = day === 0 ? 1 : (day === 6 ? 2 : 0);
+            const diff = day === 0 ? 1 : day === 6 ? 2 : 0;
             const nextMonday = new Date(date);
             nextMonday.setDate(date.getDate() + diff);
             return nextMonday;
         };
-        const finalValue = now.getDay() === 0 || now.getDay() === 6 ? getNextMonday(now) : now;
-        return finalValue;
-    };
+        return now.getDay() === 0 || now.getDay() === 6 ? getNextMonday(now) : now;
+    }, [now]);
     
     const clickSingleClass = (e: React.MouseEvent, aula: IAula) => {
         if(props.user?.email) {
@@ -65,9 +67,9 @@ function Home(props: IProps) {
     };
 
     const deleteAula = (aula: IAula) => {
-        dbDel("aulas", aula.id);
         const prosseguir = window.confirm('Tem certeza que quer excluir essa aula?');
         if (prosseguir) {
+            dbDel("aulas", aula.id);
             alert('Aula excluída com sucesso');
             fecharModal(`#id_${aula.id}`);
             setEditAula({} as IAula);
@@ -90,13 +92,13 @@ function Home(props: IProps) {
         setEditAula({} as IAula);
         setOption('');
     }
-
+    
     useEffect(() => {
-        const targetIndex = arrayDatas.filter(item => item.getDay() > 0 && item.getDay() < 6).findIndex((item) => convertDateToString(item) === convertDateToString(targetDate()));;
+        const targetIndex = arrayDatas.filter(item => item.getDay() > 0 && item.getDay() < 6).findIndex(item => convertDateToString(item) === convertDateToString(targetDate));
         if (dayRefs.current[targetIndex]) {
             dayRefs.current[targetIndex]?.scrollIntoView({ behavior: 'smooth' });
         }
-    }, []);
+    }, [arrayDatas, targetDate]);
 
     useEffect(() => {
         const dbQueryAu = dbOrderBy(dbCollection("aulas"), 'inicio', 'asc');
@@ -135,6 +137,12 @@ function Home(props: IProps) {
           });
           setFeriados(feriados);
         });
+        return () => {
+            unsubscribeAu();
+            unsubscribeCur();
+            unsubscribeTec();
+            unsubscribeFe();
+        }
     }, [])
 
     useEffect(() => {
@@ -143,6 +151,7 @@ function Home(props: IProps) {
    
     return (
         <>
+            <PageTitle title="Horário de Aulas Práticas" />
             <AppMenu />
             <Header user={props.user} setUser={props.setUser} cursos={cursos} aulas={aulas} feriados={feriados} tecnicos={tecnicos} />
             <div className="mainContainer">

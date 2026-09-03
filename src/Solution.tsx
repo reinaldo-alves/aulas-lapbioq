@@ -5,6 +5,7 @@ import { abrirModal, displayedDate, fecharModal } from "./functions";
 import SolutionMenu from "./SolutionMenu";
 import { ICategoria, ISolucao, ITecnico } from "./types"
 import { useEffect, useState } from "react";
+import { PageTitle } from "./PageTitle";
 
 interface IProps {
     user: any
@@ -116,10 +117,16 @@ function Solution(props: IProps) {
           });
           setRegistros(registros);
         });
+        return () => {
+            unsubscribeTe();
+            unsubscribeSo();
+            unsubscribeRe();
+        }
     }, [])
    
     return (
         <>
+            <PageTitle title="Registro de Preparação de Soluções" />
             <AppMenu />
             <SolutionMenu user={props.user} setUser={props.setUser} solucoes={solucoes} registros={registros} />
             <div className="mainContainer">

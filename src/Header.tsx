@@ -295,6 +295,7 @@ function Header(props: IProps) {
           });
         setStartMonth(contagem[0]);
         });
+        return () => unsubscribe();
     }, []);
     
     return (
